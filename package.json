@@ -1,0 +1,14 @@
+{
+  "name": "sos-encanador-conecta",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm --workspace @sos/web run dev",
+    "api": "npm --workspace @sos/api run dev",
+    "start": "concurrently \"npm run api\" \"npm run dev\"",
+    "install-all": "npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
