@@ -1,20 +1,9 @@
 services:
   - type: web_service
-    name: sos-encanador-api
+    name: sos-encanador-conecta
     env: node
-    root: apps/api
+    root: .
     buildCommand: npm install && npm run build
     startCommand: npm run start
     plan: free
     healthCheckPath: /
-
-  - type: static_site
-    name: sos-encanador-web
-    env: node
-    root: apps/web
-    buildCommand: npm install && npm run build
-    publishPath: dist
-    plan: free
-    envVars:
-      - key: VITE_API_URL
-        value: https://sos-encanador-conecta.onrender.com

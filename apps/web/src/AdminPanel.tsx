@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiUrl } from '../apiClient';
+import { apiUrl } from './apiClient';
 
 type AdminTab = 'requests' | 'partners';
 

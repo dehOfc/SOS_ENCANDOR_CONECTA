@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
+import { apiUrl } from '../apiClient';
 
 const serviceTypes = [
   'Vazamento',
