@@ -32,6 +32,14 @@ CREATE TABLE IF NOT EXISTS partners (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS admins (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS service_requests (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
@@ -50,6 +58,23 @@ CREATE TABLE IF NOT EXISTS service_requests (
 `;
 
 db.run(schema);
+
+function ensureDefaultAdmin() {
+  const defaultAdminEmail = process.env.ADMIN_EMAIL ?? 'admin';
+  const defaultAdminPassword = process.env.ADMIN_PASSWORD ?? 'admin';
+  const defaultAdminName = process.env.ADMIN_NAME ?? 'Administrador';
+
+  if (!getAdminAuthByEmail(defaultAdminEmail)) {
+    const stmt = db.prepare(
+      'INSERT INTO admins (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)'
+    );
+    stmt.run([crypto.randomUUID(), defaultAdminName, defaultAdminEmail, hashPassword(defaultAdminPassword), new Date().toISOString()]);
+    stmt.free();
+    saveDatabase();
+  }
+}
+
+ensureDefaultAdmin();
 
 const existingRequestColumns = db.exec('PRAGMA table_info(service_requests)');
 const requestColumnNames = existingRequestColumns.length ? existingRequestColumns[0].values.map((row: any) => row[1]) : [];
@@ -70,6 +95,80 @@ if (!requestColumnNames.includes('preferred_time')) {
 function saveDatabase() {
   const data = db.export();
   fs.writeFileSync(dbPath, Buffer.from(data));
+}
+
+interface AdminAuthRecord {
+  id: string;
+  name: string;
+  email: string;
+  password_hash: string;
+  created_at: string;
+}
+
+function getAdminAuthByEmail(email: string): AdminAuthRecord | null {
+  return runGet<AdminAuthRecord>(
+    'SELECT id, name, email, password_hash, created_at FROM admins WHERE email = ?',
+    [email]
+  );
+}
+
+export function validateAdminCredentials(email: string, password: string): boolean {
+  const admin = getAdminAuthByEmail(email);
+  if (!admin) return false;
+  return admin.password_hash === hashPassword(password);
+}
+
+export interface Admin {
+  id: string;
+  name: string;
+  email: string;
+  created_at: string;
+}
+
+export function getAdminByEmail(email: string): Admin | null {
+  const admin = getAdminAuthByEmail(email);
+  if (!admin) return null;
+  const { password_hash, ...publicAdmin } = admin;
+  return publicAdmin;
+}
+
+export function createAdmin(params: { name: string; email: string; password: string }): Admin {
+  const id = crypto.randomUUID();
+  const created_at = new Date().toISOString();
+  const password_hash = hashPassword(params.password);
+
+  const stmt = db.prepare(
+    'INSERT INTO admins (id, name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)'
+  );
+  stmt.run([id, params.name, params.email, password_hash, created_at]);
+  stmt.free();
+  saveDatabase();
+
+  return {
+    id,
+    name: params.name,
+    email: params.email,
+    created_at
+  };
+}
+
+export function updateAdminCredentials(oldEmail: string, newEmail: string, password: string) {
+  const password_hash = hashPassword(password);
+  const stmt = db.prepare('UPDATE admins SET email = ?, password_hash = ? WHERE email = ?');
+  stmt.run([newEmail, password_hash, oldEmail]);
+  stmt.free();
+  saveDatabase();
+}
+
+export function getPartnerById(id: string) {
+  const partner = runGet<PartnerAuthRecord>(
+    'SELECT id, name, email, phone, coverage, rating, password_hash, created_at FROM partners WHERE id = ?',
+    [id]
+  );
+
+  if (!partner) return null;
+  const { password_hash, ...publicPartner } = partner;
+  return publicPartner;
 }
 
 export interface Partner {
@@ -211,6 +310,19 @@ export function getRequestById(id: string): ServiceRequest | null {
 export function updateRequestStatus(id: string, status: string): ServiceRequest | null {
   const stmt = db.prepare('UPDATE service_requests SET status = ? WHERE id = ?');
   const result = stmt.run([status, id]);
+  stmt.free();
+
+  if (result.changes === 0) {
+    return null;
+  }
+
+  saveDatabase();
+  return getRequestById(id);
+}
+
+export function assignRequestToPartner(id: string, partnerId: string): ServiceRequest | null {
+  const stmt = db.prepare('UPDATE service_requests SET partner_id = ? WHERE id = ? AND partner_id IS NULL');
+  const result = stmt.run([partnerId, id]);
   stmt.free();
 
   if (result.changes === 0) {
