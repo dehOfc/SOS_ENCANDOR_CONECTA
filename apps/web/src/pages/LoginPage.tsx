@@ -3,6 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { apiUrl } from '../apiClient';
 
+async function parseResponseBody(response: Response) {
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+  const text = await response.text();
+  return { error: text || response.statusText };
+}
+
 function getPageType(pathname: string) {
   if (pathname.includes('/admin')) return 'admin';
   return 'partner';
@@ -51,8 +60,8 @@ export default function LoginPage() {
         });
 
         if (!response.ok) {
-          const body = await response.json();
-          throw new Error(body.error || 'Falha no login do administrador.');
+          const body = await parseResponseBody(response);
+          throw new Error(body.error || body.message || 'Falha no login do administrador.');
         }
 
         const data = await response.json();
@@ -75,8 +84,8 @@ export default function LoginPage() {
         });
 
         if (!response.ok) {
-          const body = await response.json();
-          throw new Error(body.error || 'Falha no cadastro do parceiro.');
+          const body = await parseResponseBody(response);
+          throw new Error(body.error || body.message || 'Falha no cadastro do parceiro.');
         }
 
         await loginPartner();
@@ -100,8 +109,8 @@ export default function LoginPage() {
     });
 
     if (!response.ok) {
-      const body = await response.json();
-      throw new Error(body.error || 'Falha no login do parceiro.');
+      const body = await parseResponseBody(response);
+      throw new Error(body.error || body.message || 'Falha no login do parceiro.');
     }
 
     const data = await response.json();

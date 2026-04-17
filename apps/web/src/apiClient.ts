@@ -5,9 +5,15 @@ export function apiUrl(path: string) {
     return path;
   }
 
+  const normalizedBase = apiBaseUrl.endsWith('/') ? apiBaseUrl.slice(0, -1) : apiBaseUrl;
+
   if (!path.startsWith('/')) {
     path = `/${path}`;
   }
 
-  return `${apiBaseUrl}${path}`;
+  if (normalizedBase && path.startsWith(normalizedBase)) {
+    return path;
+  }
+
+  return `${normalizedBase}${path}`;
 }
