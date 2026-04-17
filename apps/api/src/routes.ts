@@ -12,7 +12,9 @@ import {
   updateAdminCredentials,
   assignRequestToPartner,
   validatePartnerCredentials,
-  validateAdminCredentials
+  validateAdminCredentials,
+  getRequestsByPartnerId,
+  updateRequestStatus
 } from './db.js';
 
 interface AuthTokenPayload {
@@ -96,7 +98,7 @@ router.post('/auth/admin/login', (req, res) => {
     return res.status(400).json({ error: 'E-mail e senha são obrigatórios.' });
   }
 
-  const normalizedEmail = String(email).trim();
+  const normalizedEmail = String(email).trim().toLowerCase();
 
   if (!validateAdminCredentials(normalizedEmail, String(password))) {
     return res.status(401).json({ error: 'Credenciais de administrador inválidas.' });
@@ -298,7 +300,7 @@ router.patch('/requests/:id/assign', authenticateAdmin, (req, res) => {
   return res.json({ message: 'Solicitação atribuída ao parceiro.', request: updatedRequest });
 });
 
-router.patch('/admin/settings', authenticateAdmin, (req, res) => {
+router.patch('/admin/settings', authenticateAdmin, (req: AuthenticatedRequest, res: Response) => {
   const { email, password } = req.body;
   const oldEmail = String(req.user?.email ?? '');
 
