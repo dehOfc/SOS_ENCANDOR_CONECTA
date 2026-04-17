@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import { apiUrl } from '../apiClient';
 
 function getPageType(pathname: string) {
   if (pathname.includes('/admin')) return 'admin';
@@ -43,7 +44,7 @@ export default function LoginPage() {
 
     try {
       if (isAdmin) {
-        const response = await fetch('/api/auth/admin/login', {
+        const response = await fetch(apiUrl('/api/auth/admin/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email, password: form.password })
@@ -61,7 +62,7 @@ export default function LoginPage() {
       }
 
       if (isRegister) {
-        const response = await fetch('/api/partners', {
+        const response = await fetch(apiUrl('/api/partners'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -92,7 +93,7 @@ export default function LoginPage() {
   };
 
   async function loginPartner() {
-    const response = await fetch('/api/auth/partner/login', {
+    const response = await fetch(apiUrl('/api/auth/partner/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: form.email, password: form.password })

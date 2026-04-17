@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { apiUrl } from './apiClient';
 
 interface AuthState {
   token: string | null;
@@ -57,7 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       headers.set('Authorization', `Bearer ${auth.token}`);
     }
 
-    return fetch(input, { ...init, headers });
+    const requestInput = typeof input === 'string' ? apiUrl(input) : input;
+    return fetch(requestInput, { ...init, headers });
   };
 
   const value = useMemo(

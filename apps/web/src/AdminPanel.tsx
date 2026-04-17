@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../apiClient';
 
 type AdminTab = 'requests' | 'partners';
 
@@ -58,8 +59,8 @@ export default function AdminPanel() {
 
     try {
       const [partnersRes, requestsRes] = await Promise.all([
-        fetch('/api/partners'),
-        fetch('/api/requests')
+        fetch(apiUrl('/api/partners')),
+        fetch(apiUrl('/api/requests'))
       ]);
 
       if (!partnersRes.ok || !requestsRes.ok) {
@@ -90,7 +91,7 @@ export default function AdminPanel() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/requests/${id}/status`, {
+      const response = await fetch(apiUrl(`/api/requests/${id}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })

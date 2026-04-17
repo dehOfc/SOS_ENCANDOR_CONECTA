@@ -57,7 +57,7 @@ export default function HomePage() {
     event.preventDefault();
     setStatus('Enviando solicitação...');
 
-    const response = await fetch('/api/requests', {
+    const response = await fetch(apiUrl('/api/requests'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form)
