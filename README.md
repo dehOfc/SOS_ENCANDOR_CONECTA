@@ -24,6 +24,24 @@ Projeto MVP para um website responsivo de agenciamento de serviços de encanamen
 
 O frontend será servido em `http://localhost:4173` e o backend em `http://localhost:5174`.
 
+## Deploy do frontend estático
+
+Para hospedar apenas o frontend em GitHub Pages ou em qualquer servidor de arquivos estáticos:
+
+1. Entre na pasta do frontend:
+   ```bash
+   cd apps/web
+   ```
+2. Gere o build estático:
+   ```bash
+   npm run build
+   ```
+3. Publique a pasta `dist` no seu host estático.
+
+No caso do GitHub Pages, use a branch `gh-pages` ou a pasta `docs` com o conteúdo de `apps/web/dist`.
+
+> Atenção: o GitHub Pages serve apenas o frontend estático. A API Node/Express precisa ser hospedada em outro serviço (por exemplo, Render, Railway, Fly.io, Vercel Serverless ou outro backend Node) e o frontend deve apontar para essa URL de API.
+
 ## Funcionalidades implementadas
 
 - Landing page responsiva com CTA e seções de serviço
