@@ -118,7 +118,7 @@ export default function LoginPage() {
         { key: 'password', label: 'Senha', type: 'password' }
       ]
     : [
-        { key: 'email', label: 'E-mail', type: 'email' },
+        { key: 'email', label: 'E-mail ou admin', type: 'text' },
         { key: 'password', label: 'Senha', type: 'password' }
       ];
 
