@@ -10,7 +10,7 @@ function RequireAuth({ role, children }: { role: 'admin' | 'partner'; children: 
   const { auth } = useAuth();
 
   if (!auth.token || auth.role !== role) {
-    return <Navigate to={role === 'admin' ? '/login/admin' : '/login/partner'} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;
@@ -21,8 +21,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/login/admin" element={<LoginPage />} />
-        <Route path="/login/partner" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="/admin"
           element={

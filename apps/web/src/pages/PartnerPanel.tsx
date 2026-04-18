@@ -66,7 +66,7 @@ export default function PartnerPanel() {
 
   function handleLogout() {
     logout();
-    navigate('/login/partner');
+    navigate('/login');
   }
 
   return (

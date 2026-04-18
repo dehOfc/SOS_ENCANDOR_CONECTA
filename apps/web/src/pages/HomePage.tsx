@@ -100,8 +100,7 @@ export default function HomePage() {
           </div>
           <nav className="flex gap-4 text-sm text-slate-600">
             <Link to="/" className="hover:text-brand-700">Início</Link>
-            <Link to="/login/partner" className="hover:text-brand-700">Login Parceiro</Link>
-            <Link to="/login/admin" className="hover:text-brand-700">Login Admin</Link>
+            <Link to="/login" className="hover:text-brand-700">Login</Link>
           </nav>
         </div>
       </header>
@@ -119,8 +118,8 @@ export default function HomePage() {
                 <a href="#solicitacao" className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-700 shadow-lg shadow-cyan-500/20 transition hover:bg-slate-100">
                   Solicite agora
                 </a>
-                <Link to="/login/partner" className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm text-white transition hover:bg-white/20">
-                  Login Parceiro
+                <Link to="/login" className="inline-flex items-center justify-center rounded-full border border-white/30 bg-white/10 px-6 py-3 text-sm text-white transition hover:bg-white/20">
+                  Login / Cadastro
                 </Link>
               </div>
             </div>
@@ -267,7 +266,7 @@ export default function HomePage() {
             <h2 className="mt-4 text-3xl font-semibold">Cadastre-se como encanador parceiro e receba pedidos na sua área.</h2>
             <p className="mt-4 mx-auto max-w-2xl text-slate-300">Perfil com especialidade, histórico, avaliações e propostas. Trabalhe com flexibilidade e suporte.</p>
             <div className="mt-8 inline-flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Link to="/login/partner" className="rounded-full bg-cyan-400 px-8 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-300">Quero ser parceiro</Link>
+              <Link to="/login" className="rounded-full bg-cyan-400 px-8 py-3 text-sm font-semibold text-slate-900 transition hover:bg-cyan-300">Quero ser parceiro</Link>
               <a href="#contato" className="rounded-full border border-white/20 px-8 py-3 text-sm transition hover:bg-white/10">Saiba mais</a>
             </div>
           </div>

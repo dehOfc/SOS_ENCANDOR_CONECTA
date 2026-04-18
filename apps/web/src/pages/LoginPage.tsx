@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { apiUrl } from '../apiClient';
 
@@ -12,15 +12,7 @@ async function parseResponseBody(response: Response) {
   return { error: text || response.statusText };
 }
 
-function getPageType(pathname: string) {
-  if (pathname.includes('/admin')) return 'admin';
-  return 'partner';
-}
-
 export default function LoginPage() {
-  const location = useLocation();
-  const pageType = getPageType(location.pathname);
-  const isAdmin = pageType === 'admin';
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +27,10 @@ export default function LoginPage() {
     coverage: ''
   });
 
-  const title = isAdmin ? 'Login Admin' : isRegister ? 'Cadastro de parceiro' : 'Login Parceiro';
-  const description = isAdmin
-    ? 'Acesse o painel administrativo para controlar parceiros, solicitações e estatísticas.'
-    : isRegister
-    ? 'Cadastre-se como parceiro e comece a receber pedidos de serviço.'
-    : 'Faça login para ver suas solicitações e gerenciar atendimentos.';
+  const title = isRegister ? 'Cadastro de prestador' : 'Login';
+  const description = isRegister
+    ? 'Cadastre-se como prestador e comece a receber solicitações.'
+    : 'Faça login como prestador ou administrador. Use admin/admin para acessar o painel administrativo.';
 
   const handleChange = (field: string, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -52,24 +42,6 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      if (isAdmin) {
-        const response = await fetch(apiUrl('/api/auth/admin/login'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: form.email, password: form.password })
-        });
-
-        if (!response.ok) {
-          const body = await parseResponseBody(response);
-          throw new Error(body.error || body.message || 'Falha no login do administrador.');
-        }
-
-        const data = await response.json();
-        login(data.token, 'admin', undefined, data.email);
-        navigate('/admin');
-        return;
-      }
-
       if (isRegister) {
         const response = await fetch(apiUrl('/api/partners'), {
           method: 'POST',
@@ -89,6 +61,25 @@ export default function LoginPage() {
         }
 
         await loginPartner();
+        return;
+      }
+
+      const normalizedEmail = form.email.trim().toLowerCase();
+      if (normalizedEmail === 'admin' && form.password === 'admin') {
+        const response = await fetch(apiUrl('/api/auth/admin/login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalizedEmail, password: form.password })
+        });
+
+        if (!response.ok) {
+          const body = await parseResponseBody(response);
+          throw new Error(body.error || body.message || 'Falha no login do administrador.');
+        }
+
+        const data = await response.json();
+        login(data.token, 'admin', undefined, data.email);
+        navigate('/admin');
         return;
       }
 
@@ -118,12 +109,7 @@ export default function LoginPage() {
     navigate('/partner');
   }
 
-  const fields = isAdmin
-    ? [
-        { key: 'email', label: 'E-mail', type: 'email' },
-        { key: 'password', label: 'Senha', type: 'password' }
-      ]
-    : isRegister
+  const fields = isRegister
     ? [
         { key: 'name', label: 'Nome completo', type: 'text' },
         { key: 'email', label: 'E-mail', type: 'email' },
@@ -143,28 +129,26 @@ export default function LoginPage() {
           <h1 className="text-3xl font-semibold text-slate-900">{title}</h1>
           <p className="mt-3 text-slate-600">{description}</p>
 
-          {!isAdmin && (
-            <div className="mt-8 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setIsRegister(false)}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
-                  !isRegister ? 'bg-brand-700 text-white' : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                Login Parceiro
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsRegister(true)}
-                className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
-                  isRegister ? 'bg-brand-700 text-white' : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                }`}
-              >
-                Cadastro Parceiro
-              </button>
-            </div>
-          )}
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => setIsRegister(false)}
+              className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+                !isRegister ? 'bg-brand-700 text-white' : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsRegister(true)}
+              className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+                isRegister ? 'bg-brand-700 text-white' : 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              Cadastro Prestador
+            </button>
+          </div>
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             {fields.map((field) => (

@@ -8,7 +8,7 @@ export default function AdminPage() {
 
   function handleLogout() {
     logout();
-    navigate('/login/admin');
+    navigate('/login');
   }
 
   return (

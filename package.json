@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": ["apps/*"],
   "scripts": {
-    "dev": "npm --workspace @sos/web run dev",
+    "dev": "concurrently \"npm --workspace @sos/api run dev\" \"npm --workspace @sos/web run dev\"",
     "api": "npm --workspace @sos/api run dev",
     "start": "npm --workspace @sos/api run start",
     "build": "npm --workspace @sos/web run build && npm --workspace @sos/api run build",
